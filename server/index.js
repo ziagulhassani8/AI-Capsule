@@ -70,7 +70,7 @@ app.get(
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.SESSION_COOKIE_SECURE === 'true',
       sameSite: 'lax',
     });
 
@@ -200,10 +200,7 @@ app.delete('/api/capsules/:id', requireAuth, (req, res) => {
   res.json({ deleted: true });
 });
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
-});
-
+// Serve the built React app for everything else
 const clientDist = path.join(__dirname, '..', 'client', 'dist');
 app.use(express.static(clientDist));
 
@@ -212,4 +209,10 @@ app.get('/*splat', (req, res, next) => {
     return next();
   }
   res.sendFile(path.join(clientDist, 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
